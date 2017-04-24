@@ -15,8 +15,9 @@ import javafx.stage.Stage;
 
 import sample.Colors;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static java.util.Map.*;
 
 
 public class Main extends Application {
@@ -28,6 +29,9 @@ public class Main extends Application {
     Label actualCode;
     Colors[] actualCodeColors;
     TableView<Colors> colorsTable;
+    Label active = null;
+    Hashtable<Button, Colors> buttons = new Hashtable<>();
+    Hashtable<Label, Colors> actualPins = new Hashtable<>();
 
 
     private List<VBox> oldCodes = new ArrayList<>(10);
@@ -56,17 +60,28 @@ public class Main extends Application {
         //grid.setVgap(8);
         //grid.setHgap(10);
         //grid.getChildren().add(OK);
+        initializeButtons();
         initializeLayers();
         initializeColorsTable();
-       // Node colors = new
+        initializeActualPins();
+        // Node colors = new
 
-        GridPane.setConstraints(codes, 0, 0);
-        GridPane.setConstraints(matches, 1, 0);
-        GridPane.setConstraints(actualCodeColors, 0, 1, 2, 1);
+        GridPane.setConstraints(codes, 0, 0, 6, 9);
+        GridPane.setConstraints(matches, 6, 0, 1, 9);
+        // GridPane.setConstraints(actualCodeColors, 0, 1, 2, 1);
 
-        grid.getChildren().addAll(codes, matches, actualCode);
+        //grid.getChildren().addAll(codes, matches, actualCode);
+        grid.getChildren().addAll(codes, matches);
+
+        //test MOZLIWE  I DZIALA
+        Button but = new Button("P");
+        GridPane.setConstraints(but, 3, 3);
+        grid.getChildren().addAll(but);
+        //test
 
         window.setScene(new Scene(grid, 300, 600));
+
+
         window.show();
     }
 
@@ -90,6 +105,97 @@ public class Main extends Application {
         actualCode.setMaxSize(300, 100);
         actualCode.setStyle("-fx-border: 2px solid; -fx-border-color: green;");
 
+
+    }
+
+    public void initializeActualPins() {
+        Label pin1 = new Label();
+        Label pin2 = new Label();
+        Label pin3 = new Label();
+        Label pin4 = new Label();
+
+        Label[] pins = new Label[]{pin1, pin2, pin3, pin4};
+        for (int i = 0; i < pins.length; i++) {
+            actualPins.put(pins[i], Colors.GRAY);
+        }
+
+        GridPane.setConstraints(pin1, 0, 10);
+        GridPane.setConstraints(pin2, 1, 10);
+        GridPane.setConstraints(pin3, 2, 10);
+        GridPane.setConstraints(pin4, 3, 10);
+
+        pin1.setMinSize(40, 40);
+        pin2.setMinSize(40, 40);
+        pin3.setMinSize(40, 40);
+        pin4.setMinSize(40, 40);
+
+        pin1.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
+        pin2.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
+        pin3.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
+        pin4.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
+
+
+        addPinsListener(actualPins);
+
+        grid.getChildren().addAll(pin1, pin2, pin3, pin4);
+    }
+
+    private void addPinsListener(Hashtable<Label, Colors> pins) {
+
+        pins.forEach((key, value) -> {
+            key.setOnMousePressed(e -> {
+                active = key;
+                key.setStyle("-fx-background-color:" + value + "; -fx-border: 4px solid; -fx-border-color: black;"); //to zmienia kolor pino w na niebieski!!!!!!!!!!!!!!!!!!!
+            });
+        });
+
+
+    }
+
+
+
+    public void initializeButtonsMap(Button[] buttons) {
+        for (int i = 0; i < buttons.length; i++) {
+            this.buttons.put(buttons[i], Colors.values()[i]);
+        }
+
+    }
+
+
+    public void initializeButtons() {
+        Button red = new Button("RED");
+        Button blue = new Button("BLUE");
+        Button green = new Button("GREEN");
+        Button yellow = new Button("YELLOW");
+        Button black = new Button("BLACK");
+        Button white = new Button("WHITE");
+
+        Button[] tmpButtons = new Button[]{red, blue, green, yellow, black, white};
+        initializeButtonsMap(tmpButtons);
+        addButtonsListeners(buttons);
+
+        GridPane.setConstraints(red, 0, 11);
+        GridPane.setConstraints(blue, 1, 11);
+        GridPane.setConstraints(green, 2, 11);
+        GridPane.setConstraints(yellow, 3, 11);
+        GridPane.setConstraints(black, 4, 11);
+        GridPane.setConstraints(white, 5, 11);
+
+
+        grid.getChildren().addAll(red, blue, green, yellow, black, white);
+
+
+    }
+
+    private void addButtonsListeners(Hashtable<Button, Colors> buttons) {
+        buttons.forEach((key, value) -> {
+            key.setOnAction(e -> {
+                if (active != null) {
+                    active.setStyle("-fx-background-color:" + value + "; -fx-border: 4px solid; -fx-border-color: black;");
+                    actualPins.put(active,value);
+                }
+            });
+        });
 
     }
 
