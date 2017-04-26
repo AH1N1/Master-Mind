@@ -11,21 +11,23 @@ public class SingleMatch {
     private Colors color;
     private MatchesColors match;
 
+    public SingleMatch(Label label, Colors color) {
+        this.label = label;
+        this.color = color;
+    }
+
     public SingleMatch(Label label, Colors color, MatchesColors match) {
         this.label = label;
         this.color = color;
         this.match = match;
     }
 
+
     public SingleMatch() {
         this.color = Colors.GRAY;
         this.label = new Label();
     }
 
-    public SingleMatch(Label label, Colors color) {
-        this.label = label;
-        this.color = color;
-    }
 
     public Label getLabel() {
         return label;
@@ -43,13 +45,13 @@ public class SingleMatch {
         this.color = color;
     }
 
-    public MatchesColors getMatch() {
-        return match;
-    }
-
-    public void setMatch(MatchesColors match) {
-        this.match = match;
-    }
+//    public MatchesColors getMatch() {
+//        return match;
+//    }
+//
+//    public void setMatch(MatchesColors match) {
+//        this.match = match;
+//    }
 
     public void setColorsAndBorder(Colors color, int border) {
         this.color = color;

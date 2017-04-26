@@ -26,7 +26,7 @@ public class Main extends Application {
     Pin active = null;
     List<ColorButton> buttons = new ArrayList<>(8);
     List<Pin> activePins = new ArrayList<>();
-    List<List<Pin>> pins = new ArrayList<>(10);
+    List<List<Pin>> pins = new ArrayList<>();
     List<MatchesRow> matches = new ArrayList<>(10);
 
 
@@ -82,7 +82,7 @@ public class Main extends Application {
                 tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
                 tmpPin.getLabel().setMinSize(20, 20);
                 tmpPin.getLabel().setMaxSize(20, 20);
-                tmp.addPin(tmpPin);
+                tmp.addMatch(tmpPin);
                 GridPane.setConstraints(tmpPin.getLabel(), j, i);
                 grid.getChildren().add(tmpPin.getLabel());
             }
@@ -163,12 +163,12 @@ public class Main extends Application {
         for (int i = 0; i < 8; i++) {
             if (i == 4) {
                 row = 12;
-                cell=0;
+                cell = 0;
             }
             ColorButton tmp = new ColorButton(new Button(), Colors.values()[i]);
             buttons.add(tmp);
             tmp.setColorsAndBorder(Colors.values()[i], 1);
-            tmp.getButton().setMinSize(30,30);
+            tmp.getButton().setMinSize(30, 30);
             GridPane.setConstraints(tmp.getButton(), cell, row);
             grid.getChildren().add(tmp.getButton());
             cell++;
@@ -183,7 +183,7 @@ public class Main extends Application {
                 if (active != null) {
                     active.getLabel().setStyle("-fx-background-color:" + button.getColor() + "; -fx-border: 8px solid; -fx-border-color: black;");
                     active.setColor(button.getColor());
-
+                    System.out.println(active.getColor() + "click");
                     //activePins.set(activePins.indexOf(active),new Pin(active.getLabel(), button.getColor()));
                 }
             });
@@ -214,9 +214,10 @@ public class Main extends Application {
                 });
 
                 pins.add(tmp);
+                checkMatches();
                 movePins();
                 resetPins();
-                checkMatches();
+
                 trials++;
             } else {
 
@@ -234,7 +235,49 @@ public class Main extends Application {
     }
 
     private void checkMatches() {
+        moveMatches();
 
+        int correct = 0;
+        int color = 1;
+        for (int i = 0; i < 4; i++) {
+            System.out.println(activePins.get(i).getColor() + "a");
+            System.out.println(code[i] + "c");
+            System.out.println((activePins.get(i).getColor().equals(code[i])));
+            if (activePins.get(i).getColor().equals(code[i])) {
+                correct++;
+                continue;
+            }
+//            if(activePins.get(i).getColor().equals()){
+//
+//
+//              }
+
+            //matches.get(9).getMatch(correct).setColorsAndBorder(Colors.BLACK, 1);
+        }
+        for (int i = 0; i < correct; i++) {
+            matches.get(9).getMatch(i).setColorsAndBorder(Colors.BLACK, 1);
+        }
+        for (int i = correct; i < correct + color; i++) {
+            matches.get(9).getMatch(i).setColorsAndBorder(Colors.WHITE, 1);
+        }
+
+
+    }
+
+    private void moveMatches() {
+        if (matches.size() > 0) {
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 4; j++) {
+                    SingleMatch tmp = matches.get(i).getMatch(j);
+                    tmp.setColor(matches.get(i + 1).getMatch(j).getColor());
+                    tmp.getLabel().setStyle("-fx-background-color:" + tmp.getColor() + "; -fx-border-color: black;");
+                }
+            }
+//            for (int i = 0; i < 4; i++) {
+//                matches.get(9).getMatch(i).setColor(activePins.get(i).getColor());
+//                pins.get(9).get(i).getLabel().setStyle("-fx-background-color:" + activePins.get(i).getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
+//            //}
+        }
     }
 
     private Colors[] initializeCode() {
@@ -303,7 +346,7 @@ public class Main extends Application {
 
     private void setActive(Pin pin) {
         for (Pin pin1 : activePins) {
-            pin1.getLabel().setStyle("-fx-background-color:" + pin1.getColor() + ";");
+            pin1.getLabel().setStyle("-fx-background-color:" + pin1.getColor() + ";-fx-border-width: 1px; -fx-border-color: DimGray;");
         }
         pin.getLabel().setStyle("-fx-background-color:" + pin.getColor() + "; -fx-border-width: 2px; -fx-border-color: black;");
         active = pin;

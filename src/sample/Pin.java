@@ -37,6 +37,7 @@ public class Pin {
 
     public void setColorsAndBorder(Colors color, int border){
         this.color=color;
-        label.setStyle("-fx-background-color:" + color + "; -fx-border-width: " + border+"px; -fx-border-color: black;");
+        label.setStyle("-fx-background-color:" + color + "; -fx-border-width: " + border + "px; -fx-border-color: DimGray;");
+
     }
 }

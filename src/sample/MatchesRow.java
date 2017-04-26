@@ -26,7 +26,7 @@ public class MatchesRow {
         this.row = row;
     }
 
-    public void addPin(SingleMatch match) {
+    public void addMatch(SingleMatch match) {
         matches.add(match);
     }
 
@@ -38,7 +38,7 @@ public class MatchesRow {
         return matches.get(index);
     }
 
-    public void setmatch(int index, SingleMatch match) {
+    public void setmMatch(int index, SingleMatch match) {
         matches.set(index, match);
     }
 }
