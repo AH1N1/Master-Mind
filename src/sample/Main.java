@@ -10,20 +10,24 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 public class Main extends Application {
     //boolean ready = true; //ustaw ready w listenerze buttonow albo metoda check if ready
+    final Colors[] code = initializeCode();
+    int trials = 0;
     Stage window;
     Button OK;
     GridPane grid;
     Label codes;
-    Label matches;
+    //Label matches;
     Label actualCode;
     Pin active = null;
     List<ColorButton> buttons = new ArrayList<>(8);
     List<Pin> activePins = new ArrayList<>();
     List<List<Pin>> pins = new ArrayList<>(10);
+    List<MatchesRow> matches = new ArrayList<>(10);
 
 
     private List<VBox> oldCodes = new ArrayList<>(10);
@@ -40,6 +44,7 @@ public class Main extends Application {
 
 
         grid = new GridPane();
+        grid.setGridLinesVisible(true);
         //grid.setPadding(new Insets(10, 10, 10, 10));
         //grid.setVgap(8);
         //grid.setHgap(10);
@@ -48,15 +53,16 @@ public class Main extends Application {
         initializeActualPins();
         initializeOKButton();
         initializePins();
+        initializeMatches();
 
 
         //GridPane.setConstraints(codes, 0, 0, 4, 9);
-        GridPane.setConstraints(matches, 4, 0, 1, 9);
+        //GridPane.setConstraints(matches, 4, 0, 1, 10);
         // GridPane.setConstraints(actualCodeColors, 0, 1, 2, 1);
 
         //grid.getChildren().addAll(codes, matches, actualCode);
         //grid.getChildren().addAll(codes, matches);
-        grid.getChildren().addAll(matches);
+        // grid.getChildren().addAll(matches);
 
         //test MOZLIWE  I DZIALA
 //        Button but = new Button("P");
@@ -65,9 +71,23 @@ public class Main extends Application {
         //test
 
         window.setScene(new Scene(grid, 300, 600));
-
-
         window.show();
+    }
+
+    private void initializeMatches() {
+        for (int i = 0; i < 10; i++) {
+            MatchesRow tmp = new MatchesRow(i);
+            for (int j = 4; j < 8; j++) {
+                SingleMatch tmpPin = new SingleMatch();
+                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
+                tmpPin.getLabel().setMinSize(20, 20);
+                tmpPin.getLabel().setMaxSize(20, 20);
+                tmp.addPin(tmpPin);
+                GridPane.setConstraints(tmpPin.getLabel(), j, i);
+                grid.getChildren().add(tmpPin.getLabel());
+            }
+            matches.add(tmp);
+        }
     }
 
     private void closeProgram() {
@@ -77,10 +97,10 @@ public class Main extends Application {
     }
 
     private void initializeLayers() {
-        matches = new Label("matches");
-        matches.setMinSize(100, 500);
-        matches.setMaxSize(100, 500);
-        matches.setStyle("-fx-border: 2px solid; -fx-border-color: blue;");
+//        matches = new Label("matches");
+//        matches.setMinSize(100, 500);
+//        matches.setMaxSize(100, 500);
+//        matches.setStyle("-fx-border: 2px solid; -fx-border-color: blue;");
 //        codes = new Label("codes");
 //        codes.setMinSize(200, 500);
 //        codes.setMaxSize(200, 500);
@@ -137,14 +157,6 @@ public class Main extends Application {
     }
 
 
-//    public void initializeButtonsMap(Button[] buttons) {
-//        for (int i = 0; i < buttons.length; i++) {
-//            this.buttons.add(new ColorButton(buttons[i], Colors.values()[i]));
-//        }
-//
-//    }
-
-
     public void initializeButtons() {
         int row = 11;
         int cell = 0;
@@ -161,43 +173,8 @@ public class Main extends Application {
             grid.getChildren().add(tmp.getButton());
             cell++;
         }
-//        for (int i = 0; i < 4; i++) {
-//            ColorButton tmp = new ColorButton(new Button(), Colors.values()[colorIndex]);
-//            tmp.setColorsAndBorder( Colors.values()[colorIndex],1);
-//            buttons.add(tmp);
-//            GridPane.setConstraints(tmp.getButton(), i, 12);
-//            grid.getChildren().add(tmp.getButton());
-//            colorIndex++;
-//        }
 
-//        Button red = new Button("RED");
-//        Button blue = new Button("BLUE");
-//        Button green = new Button("GREEN");
-//        Button yellow = new Button("YELLOW");
-//        Button black = new Button("BLACK");
-//        Button white = new Button("WHITE");
-//        Button orange = new Button("ORANGE");
-//        Button purple = new Button("PURPLE");
-//
-//
-//
-//        Button[] tmpButtons = new Button[]{red, blue, green, yellow, black, white, orange, purple};
-        //initializeButtonsMap(tmpButtons);
         addButtonsListeners(buttons);
-//
-//        GridPane.setConstraints(red, 0, 11);
-//        GridPane.setConstraints(blue, 1, 11);
-//        GridPane.setConstraints(green, 2, 11);
-//        GridPane.setConstraints(yellow, 3, 11);
-//        GridPane.setConstraints(black, 0, 12);
-//        GridPane.setConstraints(white, 1, 12);
-//        GridPane.setConstraints(orange, 2, 12);
-//        GridPane.setConstraints(purple, 3, 12);
-//
-//
-//        grid.getChildren().addAll(red, blue, green, yellow, black, white, orange, purple);
-
-
     }
 
     private void addButtonsListeners(List<ColorButton> buttons) {
@@ -221,14 +198,14 @@ public class Main extends Application {
 
         addOKButtonListener();
 
-        GridPane.setConstraints(OK, 4, 11, 1, 2);
+        GridPane.setConstraints(OK, 4, 11, 4, 2);
         grid.getChildren().add(OK);
 
     }
 
     private void addOKButtonListener() {
         OK.setOnAction(e -> {
-            if (isReady()) {
+            if (isReady() && trials < 10) {
                 System.out.println(activePins.size());
                 List<Pin> tmp = new ArrayList<>();
                 activePins.forEach(pin -> {
@@ -240,6 +217,10 @@ public class Main extends Application {
                 movePins();
                 resetPins();
                 checkMatches();
+                trials++;
+            } else {
+
+                //------------------------info ze trzeba wypelnic wszystkie pola
             }
         });
 
@@ -253,6 +234,21 @@ public class Main extends Application {
     }
 
     private void checkMatches() {
+
+    }
+
+    private Colors[] initializeCode() {
+        Colors[] result = new Colors[4];
+        Colors[] colors = Colors.values();
+        int maximum = 7;
+        int minimum = 0;
+        Random rn = new Random();
+        for (int i = 0; i < 4; i++) {
+            result[i] = colors[(minimum + (int) (Math.random() * ((maximum - minimum) + 1)))];
+            System.out.println("code----------------- " + result[i].toString());
+        }
+
+        return result;
 
     }
 
