@@ -35,9 +35,9 @@ public class Pin {
         this.color = color;
     }
 
-    public void setColorsAndBorder(Colors color, int border){
+    public void setColorsAndBorder(Colors color, int border, String borderColor) {
         this.color=color;
-        label.setStyle("-fx-background-color:" + color + "; -fx-border-width: " + border + "px; -fx-border-color: DimGray;");
-
+        label.setStyle("-fx-background-color:" + color + "; -fx-border-width: " + border + "px; -fx-border-color: " + borderColor + "; -fx-padding: 5; -fx-spacing: 10;-fx-alignment:baseline-center");
+        System.out.println("-fx-background-color:" + color + "; -fx-border-width: " + border + "px; -fx-border-color: " + borderColor + "; -fx-padding: 5; -fx-spacing: 10;-fx-alignment:baseline-center");
     }
 }

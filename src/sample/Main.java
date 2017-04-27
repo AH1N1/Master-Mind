@@ -1,6 +1,7 @@
 package sample;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -36,7 +37,8 @@ public class Main extends Application {
         });
 
 
-        grid = new GridPane();
+        //grid = new GridPane();
+        grid = FXMLLoader.load(getClass().getResource("sample.fxml"));
         grid.setGridLinesVisible(true);
         //grid.setPadding(new Insets(10, 10, 10, 10));
         //grid.setVgap(8);
@@ -48,6 +50,7 @@ public class Main extends Application {
     }
 
     private void startGame() {
+        grid.setStyle("grid");
         active = null;
         trials = 0;
         code = initializeCode();
@@ -70,7 +73,7 @@ public class Main extends Application {
             MatchesRow tmp = new MatchesRow(i);
             for (int j = 4; j < 8; j++) {
                 SingleMatch tmpPin = new SingleMatch();
-                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border-width: 4px solid; -fx-border-color: black;");
+                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border-width: 1px ; -fx-border-color: black;");
                 tmpPin.getLabel().setMinSize(20, 20);
                 tmpPin.getLabel().setMaxSize(20, 20);
                 tmp.addMatch(tmpPin);
@@ -107,35 +110,20 @@ public class Main extends Application {
     public void initializeActivePins() {
         activePins = new ArrayList<>();
 
-        Label pin1 = new Label();
-        Label pin2 = new Label();
-        Label pin3 = new Label();
-        Label pin4 = new Label();
-
-        Label[] pins = new Label[]{pin1, pin2, pin3, pin4};
-        for (int i = 0; i < pins.length; i++) {
-            activePins.add(new Pin(pins[i], Colors.GRAY));
+        for (int i = 0; i < 4; i++) {
+            Label label = new Label();
+            Pin tmp = new Pin();
+            tmp.setLabel(label);
+            tmp.setColorsAndBorder(Colors.GRAY, 1, "DimGray");
+            label.setMinSize(40, 40);
+            activePins.add(tmp);
+            GridPane.setConstraints(label, i, 10);
+            grid.getChildren().add(label);
         }
-
-        GridPane.setConstraints(pin1, 0, 10);
-        GridPane.setConstraints(pin2, 1, 10);
-        GridPane.setConstraints(pin3, 2, 10);
-        GridPane.setConstraints(pin4, 3, 10);
-
-        pin1.setMinSize(40, 40);
-        pin2.setMinSize(40, 40);
-        pin3.setMinSize(40, 40);
-        pin4.setMinSize(40, 40);
-
-        pin1.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
-        pin2.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
-        pin3.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
-        pin4.setStyle("-fx-background-color:gray; -fx-border: 2px solid; -fx-border-color: DimGray ;");
-
 
         addPinsListener(activePins);
 
-        grid.getChildren().addAll(pin1, pin2, pin3, pin4);
+
     }
 
     private void addPinsListener(List<Pin> pins) {
@@ -175,7 +163,7 @@ public class Main extends Application {
         buttons.forEach(button -> {
             button.getButton().setOnAction(e -> {
                 if (active != null) {
-                    active.getLabel().setStyle("-fx-background-color:" + button.getColor() + "; -fx-border: 8px solid; -fx-border-color: black;");
+                    active.setColorsAndBorder(button.getColor(), 2, "black");
                     active.setColor(button.getColor());
                     System.out.println(active.getColor() + "click");
                     //activePins.set(activePins.indexOf(active),new Pin(active.getLabel(), button.getColor()));
@@ -193,6 +181,7 @@ public class Main extends Application {
         addOKButtonListener();
 
         GridPane.setConstraints(OK, 4, 11, 4, 2);
+        OK.setStyle("button");
         grid.getChildren().add(OK);
 
     }
@@ -229,7 +218,7 @@ public class Main extends Application {
 
     private void resetPins() {
         activePins.forEach(pin -> {
-            pin.setColorsAndBorder(Colors.GRAY, 1);
+            pin.setColorsAndBorder(Colors.GRAY, 1, "black");
 
         });
     }
@@ -352,7 +341,8 @@ public class Main extends Application {
             List<Pin> tmp = new ArrayList<>();
             for (int j = 0; j < 4; j++) {
                 Pin tmpPin = new Pin();
-                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
+                tmpPin.setColorsAndBorder(tmpPin.getColor(), 1, "black");
+                //tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
                 tmpPin.getLabel().setMinSize(30, 30);
                 tmpPin.getLabel().setMaxSize(30, 30);
                 tmp.add(tmpPin);
