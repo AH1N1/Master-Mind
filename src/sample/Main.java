@@ -5,7 +5,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -14,23 +13,17 @@ import java.util.Random;
 
 
 public class Main extends Application {
-    //boolean ready = true; //ustaw ready w listenerze buttonow albo metoda check if ready
-    final Colors[] code = initializeCode();
+    List<Colors> code;
     int trials = 0;
     Stage window;
     Button OK;
     GridPane grid;
-    Label codes;
-    //Label matches;
     Label actualCode;
     Pin active = null;
-    List<ColorButton> buttons = new ArrayList<>(8);
-    List<Pin> activePins = new ArrayList<>();
-    List<List<Pin>> pins = new ArrayList<>();
-    List<MatchesRow> matches = new ArrayList<>(10);
-
-
-    private List<VBox> oldCodes = new ArrayList<>(10);
+    List<ColorButton> buttons;
+    List<Pin> activePins;
+    List<List<Pin>> pins;
+    List<MatchesRow> matches;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -48,38 +41,36 @@ public class Main extends Application {
         //grid.setPadding(new Insets(10, 10, 10, 10));
         //grid.setVgap(8);
         //grid.setHgap(10);
-        initializeButtons();
-        initializeLayers();
-        initializeActualPins();
-        initializeOKButton();
-        initializePins();
-        initializeMatches();
-
-
-        //GridPane.setConstraints(codes, 0, 0, 4, 9);
-        //GridPane.setConstraints(matches, 4, 0, 1, 10);
-        // GridPane.setConstraints(actualCodeColors, 0, 1, 2, 1);
-
-        //grid.getChildren().addAll(codes, matches, actualCode);
-        //grid.getChildren().addAll(codes, matches);
-        // grid.getChildren().addAll(matches);
-
-        //test MOZLIWE  I DZIALA
-//        Button but = new Button("P");
-//        GridPane.setConstraints(but, 3, 3);
-//        grid.getChildren().addAll(but);
-        //test
+        startGame();
 
         window.setScene(new Scene(grid, 300, 600));
         window.show();
     }
 
+    private void startGame() {
+        active = null;
+        trials = 0;
+        code = initializeCode();
+        initializeButtons();
+        initializeLayers();
+        initializeActivePins();
+        initializeOKButton();
+        initializePins();
+        initializeMatches();
+    }
+
+    private void restartGame() {
+        grid.getChildren().clear();
+        startGame();
+    }
+
     private void initializeMatches() {
+        matches = new ArrayList<>(10);
         for (int i = 0; i < 10; i++) {
             MatchesRow tmp = new MatchesRow(i);
             for (int j = 4; j < 8; j++) {
                 SingleMatch tmpPin = new SingleMatch();
-                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
+                tmpPin.getLabel().setStyle("-fx-background-color:" + tmpPin.getColor() + "; -fx-border-width: 4px solid; -fx-border-color: black;");
                 tmpPin.getLabel().setMinSize(20, 20);
                 tmpPin.getLabel().setMaxSize(20, 20);
                 tmp.addMatch(tmpPin);
@@ -113,7 +104,9 @@ public class Main extends Application {
 
     }
 
-    public void initializeActualPins() {
+    public void initializeActivePins() {
+        activePins = new ArrayList<>();
+
         Label pin1 = new Label();
         Label pin2 = new Label();
         Label pin3 = new Label();
@@ -158,6 +151,7 @@ public class Main extends Application {
 
 
     public void initializeButtons() {
+        buttons = new ArrayList<>(8);
         int row = 11;
         int cell = 0;
         for (int i = 0; i < 8; i++) {
@@ -212,14 +206,20 @@ public class Main extends Application {
                     tmp.add(new Pin(new Label(), pin.getColor()));
                     System.out.println("    color----------" + pin.getColor() + activePins.size());
                 });
-
+                trials++;
+                System.out.println("trials przed" + trials);
                 pins.add(tmp);
-                checkMatches();
-                movePins();
+                checkMatches();//uzaleznic checka mtches. move pins od trials
+                movePins();  // uzaleznic move pins od trials
                 resetPins();
 
-                trials++;
-            } else {
+                //trials++;
+            }
+            if (trials >= 10) {
+                //checkMatches();  //jesli wygram w ostatniej wyskocza oba
+                //movePins();
+                //resetPins();
+                gameLost();
 
                 //------------------------info ze trzeba wypelnic wszystkie pola
             }
@@ -236,32 +236,51 @@ public class Main extends Application {
 
     private void checkMatches() {
         moveMatches();
-
+        ArrayList<Colors> possibleColors = new ArrayList<>(4);
+        Colors[] tmpMatches = new Colors[4];
         int correct = 0;
-        int color = 1;
+        int color = 0;
         for (int i = 0; i < 4; i++) {
             System.out.println(activePins.get(i).getColor() + "a");
-            System.out.println(code[i] + "c");
-            System.out.println((activePins.get(i).getColor().equals(code[i])));
-            if (activePins.get(i).getColor().equals(code[i])) {
+            System.out.println(code.get(i) + "c");
+            System.out.println((activePins.get(i).getColor().equals(code.get(i))));
+            if (activePins.get(i).getColor().equals(code.get(i))) {
+                tmpMatches[i] = activePins.get(i).getColor();
                 correct++;
                 continue;
+            } else {
+                possibleColors.add(activePins.get(i).getColor());
             }
-//            if(activePins.get(i).getColor().equals()){
-//
-//
-//              }
-
-            //matches.get(9).getMatch(correct).setColorsAndBorder(Colors.BLACK, 1);
         }
+        System.out.println("  possiblecolors size " + possibleColors.size() + " correct:   " + correct);
+        for (int i = 0; i < 4; i++) {
+            System.out.println("null " + (null == tmpMatches[i]));
+            System.out.println("coint " + possibleColors.contains(code.get(i)));
+            if (null == tmpMatches[i] && possibleColors.contains(code.get(i))) { //lub odwrotnie
+                possibleColors.remove(code.get(i));
+                color++;
+            }
+        }
+        System.out.println("color:   " + color + "  possiblecolors size " + possibleColors.size());
+        System.out.println("correct:   " + correct);
         for (int i = 0; i < correct; i++) {
             matches.get(9).getMatch(i).setColorsAndBorder(Colors.BLACK, 1);
         }
         for (int i = correct; i < correct + color; i++) {
             matches.get(9).getMatch(i).setColorsAndBorder(Colors.WHITE, 1);
         }
+        if (correct == 4) {
+            movePins();  // uzaleznic move pins od trials
+            resetPins();
+            gameWon();
+        }
 
 
+    }
+
+    private void gameWon() {
+        InfoBox.display("You won motherfucker!!!!");
+        restartGame();
     }
 
     private void moveMatches() {
@@ -273,22 +292,22 @@ public class Main extends Application {
                     tmp.getLabel().setStyle("-fx-background-color:" + tmp.getColor() + "; -fx-border-color: black;");
                 }
             }
-//            for (int i = 0; i < 4; i++) {
-//                matches.get(9).getMatch(i).setColor(activePins.get(i).getColor());
-//                pins.get(9).get(i).getLabel().setStyle("-fx-background-color:" + activePins.get(i).getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
-//            //}
+            for (int i = 0; i < 4; i++) {
+                matches.get(9).getMatch(i).setColorsAndBorder(Colors.GRAY, 1);
+                //pins.get(9).get(i).getLabel().setStyle("-fx-background-color:" + activePins.get(i).getColor() + "; -fx-border: 4px solid; -fx-border-color: black;");
+            }
         }
     }
 
-    private Colors[] initializeCode() {
-        Colors[] result = new Colors[4];
+    private List<Colors> initializeCode() {
+        List<Colors> result = new ArrayList<>();
         Colors[] colors = Colors.values();
         int maximum = 7;
         int minimum = 0;
         Random rn = new Random();
         for (int i = 0; i < 4; i++) {
-            result[i] = colors[(minimum + (int) (Math.random() * ((maximum - minimum) + 1)))];
-            System.out.println("code----------------- " + result[i].toString());
+            result.add(colors[(minimum + (int) (Math.random() * ((maximum - minimum) + 1)))]);
+            System.out.println("code----------------- " + result.get(i).toString());
         }
 
         return result;
@@ -328,6 +347,7 @@ public class Main extends Application {
     }
 
     public void initializePins() {
+        pins = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             List<Pin> tmp = new ArrayList<>();
             for (int j = 0; j < 4; j++) {
@@ -358,6 +378,13 @@ public class Main extends Application {
             if (pin.getColor().equals(Colors.GRAY)) ready = false;
         }
         return ready;
+    }
+
+    public void gameLost() {
+        StringBuilder answer = new StringBuilder();
+        code.forEach(color -> answer.append(color + " \n"));
+        InfoBox.display("HA! You lost GAIIIIII!!!!!", "The correct answer was: " + answer);
+        restartGame();
     }
 
     public static void main(String[] args) {
